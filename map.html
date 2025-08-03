@@ -6,23 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-    }
+    html, body, #map { height: 100%; margin: 0; }
     .locate-button {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      z-index: 1000;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-weight: bold;
-      color: #00ff88;
-      background-color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      top: 15px; right: 15px; z-index: 1000;
+      padding: 12px 18px; font-size: 15px; font-weight: bold;
+      color: #00ff88; background-color: #000;
+      border: none; border-radius: 8px; cursor: pointer;
       box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
       transition: all 0.3s ease;
     }
@@ -59,10 +49,11 @@
       deleteDoc,
       updateDoc,
       doc,
-      getDocs
+      getDocs,
+      query,
+      where
     } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyA_FQcMmyWiCxKmi8hJJaYeJGFsfrdN3ic",
       authDomain: "paytravelsl.firebaseapp.com",
@@ -73,15 +64,14 @@
       measurementId: "G-X1C4Y174CR"
     };
 
-    // Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore();
 
     let map, userLocationMarker = null;
     const markerMap = new Map();
+    const MAX_TAGS = 5;
 
-    // Bad word censor function
     function censorBadWords(text) {
       const badWords = ["hutto", "hukahan", "ponnaya", "ponna", "shit", "fuck", "pakaya", "labba"];
       const regex = new RegExp(badWords.join("|"), "gi");
@@ -122,15 +112,28 @@
 
       const tagRef = collection(db, "double_click_tags");
 
+      async function canAddMoreTags() {
+        const q = query(tagRef, where("email", "==", user.email));
+        const snapshot = await getDocs(q);
+        return snapshot.size < MAX_TAGS;
+      }
+
+      async function tryAddTag(lat, lng) {
+        if (await canAddMoreTags()) {
+          await addDoc(tagRef, {
+            uid: user.uid,
+            email: user.email,
+            lat, lng,
+            details: "",
+            timestamp: Date.now()
+          });
+        } else {
+          alert("🚫 You can only add up to 5 tags.");
+        }
+      }
+
       map.on("click", async (e) => {
-        await addDoc(tagRef, {
-          uid: user.uid,
-          email: user.email,
-          lat: e.latlng.lat,
-          lng: e.latlng.lng,
-          details: "",
-          timestamp: Date.now()
-        });
+        await tryAddTag(e.latlng.lat, e.latlng.lng);
       });
 
       setInterval(async () => {
@@ -180,13 +183,7 @@
           btn.textContent = "Mark Here";
           btn.className = "mark-btn";
           btn.onclick = async () => {
-            await addDoc(tagRef, {
-              uid: user.uid,
-              email: user.email,
-              lat, lng,
-              details: "",
-              timestamp: Date.now()
-            });
+            await tryAddTag(lat, lng);
           };
           content.appendChild(btn);
           userLocationMarker.bindPopup(content).openPopup();
