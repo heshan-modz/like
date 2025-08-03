@@ -46,36 +46,45 @@
       background: #00b359;
     }
     .panel { display: none; }
-    .active { display: block; }
+    .panel.active { display: block; }
+    #message {
+      margin-top: 10px;
+      color: orange;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Welcome -->
     <div id="welcome-panel" class="panel active">
       <h2>Welcome</h2>
-      <button onclick="showPanel('register-panel')">Register</button>
-      <button onclick="showPanel('login-panel')">Login</button>
+      <button id="to-register">Register</button>
+      <button id="to-login">Login</button>
     </div>
 
+    <!-- Register -->
     <div id="register-panel" class="panel">
       <h2>Register</h2>
       <input id="reg-email" type="email" placeholder="Email" />
       <input id="reg-password" type="password" placeholder="Password" />
       <button id="register-btn">Register</button>
-      <button onclick="showPanel('welcome-panel')">Back</button>
+      <button id="back-to-welcome1">← Back</button>
     </div>
 
+    <!-- Verifying -->
     <div id="verifying-panel" class="panel">
       <h3>Verifying Email...</h3>
-      <p>Check your inbox and verify.</p>
+      <p>Check your email and verify your account.</p>
     </div>
 
+    <!-- Login -->
     <div id="login-panel" class="panel">
       <h2>Login</h2>
       <input id="login-email" type="email" placeholder="Email" />
       <input id="login-password" type="password" placeholder="Password" />
       <button id="login-btn">Login</button>
-      <button onclick="showPanel('welcome-panel')">Back</button>
+      <button id="back-to-welcome2">← Back</button>
     </div>
 
     <p id="message"></p>
@@ -88,6 +97,7 @@
       signInWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
+    // ✅ Your Firebase project
     const firebaseConfig = {
       apiKey: "AIzaSyA_FQcMmyWiCxKmi8hJJaYeJGFsfrdN3ic",
       authDomain: "paytravelsl.firebaseapp.com",
@@ -101,15 +111,30 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
 
-    const showPanel = id => {
-      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      document.getElementById("message").innerText = "";
+    const message = document.getElementById("message");
+    const showMessage = (text, color = "orange") => {
+      message.style.color = color;
+      message.innerText = text;
     };
 
+    const showPanel = (id) => {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      message.innerText = "";
+    };
+
+    // Navigation
+    document.getElementById("to-register").onclick = () => showPanel("register-panel");
+    document.getElementById("to-login").onclick = () => showPanel("login-panel");
+    document.getElementById("back-to-welcome1").onclick = () => showPanel("welcome-panel");
+    document.getElementById("back-to-welcome2").onclick = () => showPanel("welcome-panel");
+
+    // Register
     document.getElementById("register-btn").onclick = async () => {
       const email = document.getElementById("reg-email").value;
       const password = document.getElementById("reg-password").value;
+      if (!email || !password) return showMessage("Fill in both fields", "red");
+
       try {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         await sendEmailVerification(userCred.user);
@@ -120,27 +145,29 @@
           if (userCred.user.emailVerified) {
             clearInterval(interval);
             showPanel("login-panel");
-            document.getElementById("message").innerText = "✅ Verified. Please login.";
+            showMessage("✅ Email verified. You can log in.", "lightgreen");
           }
         }, 3000);
       } catch (err) {
-        document.getElementById("message").innerText = err.message;
+        showMessage(err.message, "red");
       }
     };
 
+    // Login
     document.getElementById("login-btn").onclick = async () => {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
+      if (!email || !password) return showMessage("Enter email & password", "red");
+
       try {
         const userCred = await signInWithEmailAndPassword(auth, email, password);
         await userCred.user.reload();
         if (!userCred.user.emailVerified) {
-          document.getElementById("message").innerText = "Please verify your email.";
-          return;
+          return showMessage("❌ Please verify your email first.", "red");
         }
         window.location.href = "map.html";
       } catch (err) {
-        document.getElementById("message").innerText = err.message;
+        showMessage(err.message, "red");
       }
     };
   </script>
