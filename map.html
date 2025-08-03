@@ -132,7 +132,8 @@
         }
       }
 
-      map.on("click", async (e) => {
+      // ✅ CHANGED: Use double-click instead of click
+      map.on("dblclick", async (e) => {
         await tryAddTag(e.latlng.lat, e.latlng.lng);
       });
 
