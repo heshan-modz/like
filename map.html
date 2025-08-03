@@ -2,123 +2,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Map</title>
+  <meta charset="UTF-8" />
+  <title>Map Tagging</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    html, body, #map { height: 100%; margin: 0; }
-    .locate-button {
-      position: absolute;
-      top: 10px; right: 10px;
-      z-index: 1000;
-      background: black; color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <div class="locate-button" onclick="locateMe()">📍 Locate Me</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-  import {
-    getAuth, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
-  import {
-    getFirestore, collection, addDoc, onSnapshot, doc, setDoc
-  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
-  import {
-    getStorage, ref, uploadBytes, getDownloadURL
-  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA_FQcMmyWiCxKmi8hJJaYeJGFsfrdN3ic",
-    authDomain: "paytravelsl.firebaseapp.com",
-    projectId: "paytravelsl",
-    storageBucket: "paytravelsl.appspot.com",
-    messagingSenderId: "608938101194",
-    appId: "1:608938101194:web:32f3ec6e59b9cd3dad2733",
-    measurementId: "G-X1C4Y174CR"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_FQcMmyWiCxKmi8hJJaYeJGFsfrdN3ic",
+      authDomain: "paytravelsl.firebaseapp.com",
+      projectId: "paytravelsl",
+      storageBucket: "paytravelsl.appspot.com",
+      messagingSenderId: "608938101194",
+      appId: "1:608938101194:web:32f3ec6e59b9cd3dad2733",
+      measurementId: "G-X1C4Y174CR"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore();
-  const storage = getStorage();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore();
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user || !user.emailVerified) {
-      window.location.href = "index.html";
-    } else {
-      setupMap(user);
-    }
-  });
-
-  function setupMap(user) {
-    const map = L.map('map').setView([7.8731, 80.7718], 8);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
-    }).addTo(map);
-
-    let userMarker;
-    let markers = {};
-
-    window.locateMe = () => map.locate({ setView: true });
-
-    map.on('locationfound', async (e) => {
-      const { lat, lng } = e.latlng;
-      if (!userMarker) {
-        userMarker = L.marker([lat, lng]).addTo(map).bindPopup("You");
-      } else {
-        userMarker.setLatLng([lat, lng]);
+    onAuthStateChanged(auth, (user) => {
+      if (!user || !user.emailVerified) {
+        window.location.href = "index.html";
+        return;
       }
-      await setDoc(doc(db, "locations", user.uid), {
-        uid: user.uid, email: user.email, lat, lng, timestamp: Date.now()
-      });
+      initMap(user);
     });
 
-    map.on('click', async (e) => {
-      const note = prompt("Enter note for this location:");
-      if (!note) return;
+    function initMap(user) {
+      const map = L.map("map").setView([7.8731, 80.7718], 8);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19
+      }).addTo(map);
 
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = async () => {
-        const file = input.files[0];
-        const filePath = `images/${user.uid}/${Date.now()}_${file.name}`;
-        const fileRef = ref(storage, filePath);
-        await uploadBytes(fileRef, file);
-        const imageUrl = await getDownloadURL(fileRef);
+      const blueIcon = new L.Icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
 
+      const greenIcon = new L.Icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let markers = {};
+
+      // Tag on click
+      map.on("click", async function(e) {
         await addDoc(collection(db, "markers"), {
           uid: user.uid,
           email: user.email,
           lat: e.latlng.lat,
           lng: e.latlng.lng,
-          note,
-          imageUrl,
           timestamp: Date.now()
         });
-      };
-      input.click();
-    });
-
-    onSnapshot(collection(db, "markers"), (snapshot) => {
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const id = docSnap.id;
-        if (markers[id]) return;
-        const popup = `<b>${data.email}</b><br>${data.note}<br><img src="${data.imageUrl}" width="150" />`;
-        markers[id] = L.marker([data.lat, data.lng]).addTo(map).bindPopup(popup);
       });
-    });
-  }
-</script>
+
+      // Show all markers
+      onSnapshot(collection(db, "markers"), (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+          const data = change.doc.data();
+          const id = change.doc.id;
+
+          if (change.type === "added" && !markers[id]) {
+            const icon = data.uid === user.uid ? blueIcon : greenIcon;
+            const marker = L.marker([data.lat, data.lng], { icon }).addTo(map)
+              .bindPopup(`<b>${data.email}</b>`);
+            markers[id] = marker;
+          }
+        });
+      });
+    }
+  </script>
 </body>
 </html>
