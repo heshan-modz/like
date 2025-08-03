@@ -7,6 +7,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body, #map { height: 100%; margin: 0; }
+
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+
     .locate-button {
       position: absolute;
       top: 15px; right: 15px; z-index: 1000;
@@ -43,15 +48,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      deleteDoc,
-      updateDoc,
-      doc,
-      getDocs,
-      query,
-      where
+      getFirestore, collection, addDoc, deleteDoc, updateDoc, doc,
+      getDocs, query, where
     } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -90,6 +88,8 @@
       map = L.map("map", {
         center: [7.8731, 80.7718],
         zoom: 8,
+        zoomControl: true,
+        attributionControl: false,
         maxBounds: [[5.7, 78.0], [10.1, 83.0]],
         maxBoundsViscosity: 1.0,
         minZoom: 7,
@@ -132,7 +132,6 @@
         }
       }
 
-      // ✅ CHANGED: Use double-click instead of click
       map.on("dblclick", async (e) => {
         await tryAddTag(e.latlng.lat, e.latlng.lng);
       });
