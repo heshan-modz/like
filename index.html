@@ -1,0 +1,148 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Map App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      width: 400px;
+      box-shadow: 0 0 10px #00cc66;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #2e2e2e;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      padding: 12px;
+      background: #00cc66;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #00b359;
+    }
+    .panel { display: none; }
+    .active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="welcome-panel" class="panel active">
+      <h2>Welcome</h2>
+      <button onclick="showPanel('register-panel')">Register</button>
+      <button onclick="showPanel('login-panel')">Login</button>
+    </div>
+
+    <div id="register-panel" class="panel">
+      <h2>Register</h2>
+      <input id="reg-email" type="email" placeholder="Email" />
+      <input id="reg-password" type="password" placeholder="Password" />
+      <button id="register-btn">Register</button>
+      <button onclick="showPanel('welcome-panel')">Back</button>
+    </div>
+
+    <div id="verifying-panel" class="panel">
+      <h3>Verifying Email...</h3>
+      <p>Check your inbox and verify.</p>
+    </div>
+
+    <div id="login-panel" class="panel">
+      <h2>Login</h2>
+      <input id="login-email" type="email" placeholder="Email" />
+      <input id="login-password" type="password" placeholder="Password" />
+      <button id="login-btn">Login</button>
+      <button onclick="showPanel('welcome-panel')">Back</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, sendEmailVerification,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_FQcMmyWiCxKmi8hJJaYeJGFsfrdN3ic",
+      authDomain: "paytravelsl.firebaseapp.com",
+      projectId: "paytravelsl",
+      storageBucket: "paytravelsl.appspot.com",
+      messagingSenderId: "608938101194",
+      appId: "1:608938101194:web:32f3ec6e59b9cd3dad2733",
+      measurementId: "G-X1C4Y174CR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+
+    const showPanel = id => {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.getElementById("message").innerText = "";
+    };
+
+    document.getElementById("register-btn").onclick = async () => {
+      const email = document.getElementById("reg-email").value;
+      const password = document.getElementById("reg-password").value;
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCred.user);
+        showPanel("verifying-panel");
+
+        const interval = setInterval(async () => {
+          await userCred.user.reload();
+          if (userCred.user.emailVerified) {
+            clearInterval(interval);
+            showPanel("login-panel");
+            document.getElementById("message").innerText = "✅ Verified. Please login.";
+          }
+        }, 3000);
+      } catch (err) {
+        document.getElementById("message").innerText = err.message;
+      }
+    };
+
+    document.getElementById("login-btn").onclick = async () => {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        await userCred.user.reload();
+        if (!userCred.user.emailVerified) {
+          document.getElementById("message").innerText = "Please verify your email.";
+          return;
+        }
+        window.location.href = "map.html";
+      } catch (err) {
+        document.getElementById("message").innerText = err.message;
+      }
+    };
+  </script>
+</body>
+</html>
