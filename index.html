@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>HeshaNAuth Service</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  </head>
+<body>
+  <div class="bg-blur" aria-hidden="true"></div>
+  <div class="cursor-blob" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav">
+      <a class="logo" href="#top" aria-label="Console home">
+        <span class="logo-badge"></span>
+        <span>HeshaNAuth&nbsp;Service</span>
+      </a>
+      <div class="nav-links">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2"/></svg>
+          <span style="font-size:.9rem">Theme</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero with right-side video -->
+  <main id="top" class="hero container">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <h1 class="title" data-reveal>HeshaNAuth</h1>
+        <p class="subtitle" data-reveal>HeshaNAuth offers a powerful and modern authentication solution that blends secure access with a sleek, user-friendly interface. It provides robust features to manage your application's security comprehensive user management.</p>
+      </div>
+      <aside class="hero-video" aria-label="Demo video">
+        <div class="video-card" data-reveal>
+          <iframe
+            id="demoVideo"
+            title="HeshaNAuth demo"
+          src="https://www.youtube.com/embed/1-XwN4tbS7c?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=1-XwN4tbS7c"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Admin Shell -->
+  <section class="container" data-reveal>
+    <div class="shell">
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist" aria-label="Steps">
+        <button id="tab-login" class="tab" aria-selected="true" aria-controls="panel-login">Login</button>
+        <button id="tab-create" class="tab" aria-selected="false" aria-controls="panel-create">Create</button>
+        <button id="tab-menu" class="tab" aria-selected="false" aria-controls="panel-menu" aria-hidden="true" inert>Menu</button>
+      </nav>
+
+      <!-- Login -->
+      <section id="panel-login" class="panel active" role="tabpanel" aria-labelledby="tab-login">
+        <div class="grid grid-2">
+          <div><label>Email</label><input id="login-email" type="email" placeholder="you@example.com" autocomplete="username" /></div>
+          <div><label>Password</label><input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" /></div>
+        </div>
+        <div class="grid grid-2">
+          <button id="btn-login" class="btn">Log In</button>
+          <button id="btn-forgot" class="btn secondary">Forgot Password</button>
+        </div>
+        <div id="login-status" class="status"></div>
+        <div id="verify-status" class="status"></div>
+      </section>
+
+      <!-- Create -->
+      <section id="panel-create" class="panel" role="tabpanel" aria-labelledby="tab-create">
+        <div class="grid grid-2">
+          <div><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com" autocomplete="email" /></div>
+          <div><label>Password (min 6)</label><input id="reg-pass" type="password" placeholder="••••••••" autocomplete="new-password" /></div>
+        </div>
+        <div class="grid grid-2">
+          <button id="btn-register" class="btn">Create Account</button>
+          <button id="goto-login" class="btn secondary">Back to Login</button>
+        </div>
+        <div id="reg-status" class="status"></div>
+      </section>
+
+      <!-- Menu -->
+      <section id="panel-menu" class="panel" role="tabpanel" aria-labelledby="tab-menu" aria-hidden="true" inert>
+        <div class="grid">
+          <div class="chip">Access: <code id="allow-status">—</code></div>
+          <div class="chip">Admin key: <code id="admin-key">—</code>
+            <button id="copy-admin" class="btn secondary" style="margin:0;padding:6px 10px;min-height:auto">Copy</button>
+          </div>
+          <a class="btn" href="https://raw.githubusercontent.com/heshan-modz/panel-update/refs/heads/main/C%23%20Sources.zip" target="_blank" rel="noopener">C# Sources</a>
+        </div>
+    
+        <div class="grid grid-2" style="margin-top:24px">
+          <div>
+            <h3 style="margin:0 0 8px 0">Required App Version</h3>
+            <label>Version (x.y.z)</label>
+            <input id="app-version" placeholder="1.0.2" />
+            <button id="btn-save-version" class="btn">Save Version</button>
+            <div id="version-status" class="status"></div>
+          </div>
+          <div>
+            <h3 style="margin:0 0 8px 0">Send Link to Application</h3>
+            <label>Application Link</label>
+            <input id="app-link" placeholder="https://..." />
+            <div class="grid grid-2">
+              <button id="btn-send-link" class="btn">Save Link</button>
+
+            </div>
+            <div id="link-status" class="status"></div>
+          </div>
+        </div>
+
+        <!-- Token Management (new) -->
+        <div class="grid" style="margin-top:24px">
+          <div>
+            <h3 style="margin:0 0 8px 0">Generate Token</h3>
+            <label>Token</label>
+            <input id="token-value" placeholder="Click Generate to create…" readonly />
+            <button id="btn-gen-token" class="btn" style="width:100%;margin:8px 0 6px 0">Generate Token</button>
+            <button id="btn-save-token" class="btn" style="width:100%;margin-bottom:10px">Save Token</button>
+            <label style="margin-top:16px;display:block">Expiration Date</label>
+            <input id="token-expiration" type="date" />
+            <label class="chip" style="margin-top:16px">
+              <input type="checkbox" id="token-require-hwid" style="margin-right:8px;width:auto;height:auto" />
+              Require HWID lock
+            </label>
+            <div id="token-status" class="status"></div>
+          </div>
+          
+        <div class="grid" style="margin-top:24px">
+  <div>
+    <h3 style="margin:0 0 8px 0">Tokens</h3>
+    <ul id="tokens-list" class="token-list"></ul>
+  </div>
+</div>
+
+<div class="grid" style="margin-top:24px">
+          <div>
+            <h3 style="margin:0 0 8px 0">Add / Update User</h3>
+            <div class="grid grid-2">
+              <div><label>Username</label><input id="username" /></div>
+              <div><label>Password</label><input id="password" type="password" /></div>
+            </div>
+            <label style="margin-top:16px;display:block">Expiration Date</label>
+            <input id="expiration" type="date" />
+            <label class="chip" style="margin-top:16px">
+              <input type="checkbox" id="require-hwid" style="margin-right:8px;width:auto;height:auto" /> Use HWID lock
+            </label>
+            <button id="btn-register-user" class="btn">Register / Update</button>
+            <div id="register-status" class="status"></div>
+          </div>
+
+          
+          <!-- Registration Graph -->
+          <div class="grid" style="margin-top:24px">
+            <div>
+              <h3 style="margin:0 0 8px 0">Registration Graph</h3>
+              <p class="subtitle" style="font-size:.95rem">Users added per hour (today).</p>
+              <div class="chart-card">
+                <canvas id="registerChart"></canvas>
+                <div class="chart-note"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="margin-bottom:12px">All Registered Users</h3>
+            <div class="grid grid-2" style="gap:8px;align-items:center;">
+              <input id="search-input" placeholder="Search by Username" style="margin-top:0" />
+              <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+                <button id="btn-reload" class="btn secondary" style="margin-top:0">Refresh</button>
+                <button id="btn-sort" class="btn secondary" style="margin-top:0">Sort A–Z</button>
+            
+              </div>
+            </div>
+            <div class="table-wrap"><table id="users-table"></table></div>
+          </div>
+        </div>
+</div>
+
+        <!-- Superadmin-only: Email allowlist controls -->
+        <div id="allow-admin" style="margin-top:24px;display:none">
+          <h3 style="margin:0 0 8px 0">Email Allowlist (Firestore)</h3>
+          <div class="grid grid-2" style="gap:8px;align-items:center;">
+            <input id="allow-email" placeholder="target@domain.com" style="margin-top:0" />
+            <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+              <button id="btn-allow" class="btn" style="margin-top:0">Allow</button>
+              <button id="btn-deny" class="btn danger" style="margin-top:0">Deny</button>
+              <button id="btn-refresh-allow" class="btn secondary" style="margin-top:0">Refresh</button>
+            </div>
+          </div>
+          <div id="allow-status-msg" class="status"></div>
+          <div class="table-wrap">
+            <table id="allow-table">
+              <thead><tr><th>Email</th><th>Allow</th><th>Role</th><th>Reason</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <footer class="container" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:28px 0;color:var(--muted)">
+    <div>© </span> Powered By HeshaN ModZ</div>
+    <div style="display:flex;gap:.6rem;align-items:center">
+      <a class="chip" href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- DevTools shield (shown if inspect/DevTools is detected) -->
+  <div id="devtools-shield" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(5,8,12,.96);backdrop-filter:blur(6px);color:#fff;align-items:center;justify-content:center;text-align:center;padding:32px">
+    <div style="max-width:720px">
+      <h2 style="margin:0 0 10px 0;font-family:Manrope,Inter,sans-serif;font-weight:800;letter-spacing:.2px">Developer Tools Disabled</h2>
+      <p style="opacity:.85">Please close DevTools / Inspect Element to continue using this page.</p>
+    </div>
+  </div>
+
+  <!-- App script (build: show hero only on Menu; cleaned duplicate tokens; fixed chart id) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="loader.js"></script>
+</body>
+</html>
